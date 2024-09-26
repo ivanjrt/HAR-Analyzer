@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Har Analyzer", "Har Analyzer\Har Analyzer.csproj", "{9B9B7D94-724D-45CD-93D7-525D0A213F3C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9B9B7D94-724D-45CD-93D7-525D0A213F3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B9B7D94-724D-45CD-93D7-525D0A213F3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B9B7D94-724D-45CD-93D7-525D0A213F3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B9B7D94-724D-45CD-93D7-525D0A213F3C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B75A3281-3505-4AB2-A7C0-20DCB8544DEF}
+	EndGlobalSection
+EndGlobal
