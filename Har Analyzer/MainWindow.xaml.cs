@@ -31,6 +31,9 @@ namespace HARFileViewer
                     string fileContent = File.ReadAllText(openFileDialog.FileName);
                     harData = JObject.Parse(fileContent);
 
+                    string fileName = Path.GetFileName(openFileDialog.FileName);
+                    FileNameTextBlock.Text = $"Loaded File: {fileName}";
+
                     if (harData["log"] != null && harData["log"]["entries"] != null)
                     {
                         JArray entries = (JArray)harData["log"]["entries"];
@@ -100,6 +103,7 @@ namespace HARFileViewer
             CallTable.ItemsSource = null;
             ResponseContent.Clear();
             harData = null;
+            FileNameTextBlock.Text = string.Empty;
         }
     }
 
