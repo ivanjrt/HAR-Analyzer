@@ -1,5 +1,5 @@
 # HAR Analyzer
-This Repo will attempt to read a HAR trace and display its entries in a RAW format. <br/>
+This Repo will to read a HAR trace and display its entries in a RAW format. <br/>
 if you have other ideas to add please let me know <br/>
 ![image](https://github.com/user-attachments/assets/0d6eb6ad-3361-4a35-bb4d-20f8bb5818e1) <br/>
 
