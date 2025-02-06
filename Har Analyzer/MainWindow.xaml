@@ -74,6 +74,7 @@
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
@@ -84,7 +85,14 @@
                 <Button Name="ResetButton" Content="Reset" Click="ResetButton_Click" Background="#FF1F3E7B" />
             </StackPanel>
 
-            <DataGrid Grid.Row="1" Name="CallTable" AutoGenerateColumns="False" 
+            <!-- Search Box and Button -->
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10,0,10,10">
+                <TextBox Name="SearchTextBox" Width="200" Margin="0,0,5,0" />
+                <Button Name="SearchButton" Content="🔍 Search" Click="SearchButton_Click" Background="#FF57376F"/>
+                <Button Name="ClearSearchButton" Content="❌ Clear Highlights" Click="ClearSearchButton_Click" Background="#FF57376F"/>
+            </StackPanel>
+
+            <DataGrid Grid.Row="2" Name="CallTable" AutoGenerateColumns="False" 
                       SelectionChanged="CallTable_SelectionChanged"
                       VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                       CanUserResizeColumns="True" ColumnWidth="*"
