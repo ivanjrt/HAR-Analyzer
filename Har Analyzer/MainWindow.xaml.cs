@@ -5,8 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace HARFileViewer
@@ -82,28 +85,68 @@ namespace HARFileViewer
                 int index = CallTable.SelectedIndex;
                 if (index >= 0 && index < harData["log"]["entries"].Count())
                 {
-                    ResponseContent.Text = JsonConvert.SerializeObject(harData["log"]["entries"][index], Formatting.Indented);
+                    string jsonContent = JsonConvert.SerializeObject(harData["log"]["entries"][index], Formatting.Indented);
+                    ResponseContent.Document.Blocks.Clear();
+                    ResponseContent.Document.Blocks.Add(new Paragraph(new Run(jsonContent)));
                 }
             }
         }
 
         private void CopyButton_Click(object sender, RoutedEventArgs e)
         {
-            Clipboard.SetText(ResponseContent.Text);
+            Clipboard.SetText(new TextRange(ResponseContent.Document.ContentStart, ResponseContent.Document.ContentEnd).Text);
             MessageBox.Show("Content copied to clipboard!");
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            ResponseContent.Clear();
+            ResponseContent.Document.Blocks.Clear();
         }
 
         private void ResetButton_Click(object sender, RoutedEventArgs e)
         {
             CallTable.ItemsSource = null;
-            ResponseContent.Clear();
+            ResponseContent.Document.Blocks.Clear();
             harData = null;
             FileNameTextBlock.Text = string.Empty;
+            RawSearchTextBox.Clear();
+        }
+
+        private void RawSearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            string searchKeyword = RawSearchTextBox.Text;
+            if (string.IsNullOrEmpty(searchKeyword))
+            {
+                MessageBox.Show("Please enter a search keyword.", "Search Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            TextRange textRange = new TextRange(ResponseContent.Document.ContentStart, ResponseContent.Document.ContentEnd);
+            string text = textRange.Text;
+            int index = text.IndexOf(searchKeyword, StringComparison.OrdinalIgnoreCase);
+
+            if (index == -1)
+            {
+                MessageBox.Show("No matches found.", "Search Results", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            // Clear previous highlights
+            textRange.ClearAllProperties();
+
+            // Highlight all matches
+            while (index != -1)
+            {
+                TextPointer start = textRange.Start.GetPositionAtOffset(index);
+                TextPointer end = textRange.Start.GetPositionAtOffset(index + searchKeyword.Length);
+                TextRange matchRange = new TextRange(start, end);
+                matchRange.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Yellow);
+                matchRange.ApplyPropertyValue(TextElement.ForegroundProperty, Brushes.Black);
+
+                index = text.IndexOf(searchKeyword, index + searchKeyword.Length, StringComparison.OrdinalIgnoreCase);
+            }
+
+            MessageBox.Show($"Found matches for '{searchKeyword}'.", "Search Results", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 
