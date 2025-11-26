@@ -87,7 +87,7 @@
 
             <!-- Search Box and Button -->
             <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10,0,10,10">
-                <TextBox Name="SearchTextBox" Width="200" Margin="0,0,5,0" />
+                <TextBox Name="SearchTextBox" Width="200" Margin="0,0,5,0" KeyDown="SearchTextBox_KeyDown" />
                 <Button Name="SearchButton" Content="🔍 Search" Click="SearchButton_Click" Background="#FF57376F"/>
                 <Button Name="ClearSearchButton" Content="❌ Clear Highlights" Click="ClearSearchButton_Click" Background="#FF57376F"/>
             </StackPanel>
@@ -121,7 +121,7 @@
                     <Button Name="CloseButton" Content="❌ Clear" Click="CloseButton_Click" Background="#FF57376F"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0">
-                    <TextBox Name="RawSearchTextBox" Width="200" Margin="0,0,5,0" />
+                    <TextBox Name="RawSearchTextBox" Width="200" Margin="0,0,5,0" KeyDown="RawSearchTextBox_KeyDown" />
                     <Button Name="RawSearchButton" Content="🔍 Search" Click="RawSearchButton_Click" Background="#FF57376F"/>
                 </StackPanel>
                 <TextBlock Text="This is the RAW Content" Foreground="White" Width="173" HorizontalAlignment="Right"/>

@@ -9,6 +9,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 
@@ -211,6 +212,24 @@ namespace HARFileViewer
         private void ClearSearchButton_Click(object sender, RoutedEventArgs e)
         {
             ClearSearchHighlights();
+        }
+
+        // New KeyDown event handler for SearchTextBox
+        private void SearchTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                SearchButton_Click(sender, e);
+            }
+        }
+
+        // New KeyDown event handler for RawSearchTextBox
+        private void RawSearchTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                RawSearchButton_Click(sender, e);
+            }
         }
     }
 }
