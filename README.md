@@ -73,6 +73,9 @@ This was built with a "do no harm" mindset:
 
 Not gonna lie — since this app isn't signed with a paid code-signing certificate, Windows is gonna complain on first run. Totally normal. Here's how to get past it:
 
+![image](https://github.com/ivanjrt/SCCM-Capabilities-Codes-Analyzer/assets/44326428/745209e0-f13e-4c80-bd19-b893dc000c27)<br/>
+![image](https://github.com/ivanjrt/SearchFilesTools/assets/44326428/381bb43a-4e87-4db2-b0a4-ce8f7e536062)<br/>
+**Fix**:<br/>
 1. Click **More info**
 2. Click **Run anyway**
 
@@ -85,13 +88,3 @@ See [LICENSE.txt](LICENSE.txt).
 ---
 
 *Got ideas? Found a bug? Feel free to open an issue or a PR — contributions are always welcome! 🤝*
-
-
-* You are free to either give me more ideas or collaborate :)
-
-* Due to the fact that I don't have money to buy my own _Code Signing Certificate_ you will 💯 receive this the first time you run the app<br/>
-![image](https://github.com/ivanjrt/SCCM-Capabilities-Codes-Analyzer/assets/44326428/745209e0-f13e-4c80-bd19-b893dc000c27)<br/>
-![image](https://github.com/ivanjrt/SearchFilesTools/assets/44326428/381bb43a-4e87-4db2-b0a4-ce8f7e536062)<br/>
-**Fix**:<br/>
-**Click More info > Run Anyway<br/>
-
