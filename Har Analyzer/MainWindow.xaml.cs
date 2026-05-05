@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -13,7 +14,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace HARFileViewer
+namespace Har_Analyzer
 {
     public partial class MainWindow : Window
     {
@@ -23,6 +24,7 @@ namespace HARFileViewer
         public class CallEntry : INotifyPropertyChanged
         {
             private bool _isMatch;
+            private int _matchCount;
 
             public string Method { get; set; }
             public string Url { get; set; }
@@ -36,6 +38,23 @@ namespace HARFileViewer
                     if (_isMatch != value)
                     {
                         _isMatch = value;
+                        OnPropertyChanged();
+                    }
+                }
+            }
+
+            /// <summary>
+            /// How many times the current deep-search keyword appears in this
+            /// entry's full JSON. 0 when no deep search is active or no hits.
+            /// </summary>
+            public int MatchCount
+            {
+                get => _matchCount;
+                set
+                {
+                    if (_matchCount != value)
+                    {
+                        _matchCount = value;
                         OnPropertyChanged();
                     }
                 }
@@ -61,12 +80,59 @@ namespace HARFileViewer
             if (openFileDialog.ShowDialog() != true)
                 return;
 
+            LoadHarFile(openFileDialog.FileName);
+        }
+
+        /// <summary>
+        /// Allows drag-over to show a copy cursor only for valid .har files.
+        /// </summary>
+        private void BrowseButton_DragOver(object sender, DragEventArgs e)
+        {
+            bool valid = IsHarDrop(e.Data);
+            e.Effects = valid ? DragDropEffects.Copy : DragDropEffects.None;
+            e.Handled = true;
+        }
+
+        /// <summary>
+        /// Loads the dropped .har file (first one if multiple are dropped).
+        /// </summary>
+        private void BrowseButton_Drop(object sender, DragEventArgs e)
+        {
+            if (!IsHarDrop(e.Data))
+                return;
+
+            var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            if (files == null || files.Length == 0)
+                return;
+
+            LoadHarFile(files[0]);
+        }
+
+        /// <summary>
+        /// True when the drag payload carries at least one .har file.
+        /// </summary>
+        private static bool IsHarDrop(IDataObject data)
+        {
+            if (!data.GetDataPresent(DataFormats.FileDrop))
+                return false;
+
+            var files = (string[])data.GetData(DataFormats.FileDrop);
+            return files != null && files.Length > 0 &&
+                   files[0].EndsWith(".har", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Shared load path for browse and drag-and-drop. Parses the HAR,
+        /// populates the call table, and reports success/failure.
+        /// </summary>
+        private void LoadHarFile(string filePath)
+        {
             try
             {
-                string fileContent = File.ReadAllText(openFileDialog.FileName);
+                string fileContent = File.ReadAllText(filePath);
                 _harData = JObject.Parse(fileContent);
 
-                FileNameTextBlock.Text = $"Loaded File: {Path.GetFileName(openFileDialog.FileName)}";
+                FileNameTextBlock.Text = $"Loaded File: {Path.GetFileName(filePath)}";
 
                 if (_harData["log"]?["entries"] is JArray entries)
                 {
@@ -192,6 +258,23 @@ namespace HARFileViewer
             _currentRawContent = null;
         }
 
+        private void HelpButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "https://github.com/ivanjrt/HAR-Analyzer",
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Unable to open help page: {ex.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void ResetButton_Click(object sender, RoutedEventArgs e)
         {
             CallTable.ItemsSource = null;
@@ -253,10 +336,97 @@ namespace HARFileViewer
                 "Search Results", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
+        /// <summary>
+        /// Deep search: scans the FULL JSON of every loaded entry (request,
+        /// response, headers, body — everything) for the keyword and highlights
+        /// matching rows. The per-entry hit count is shown in the Matches column
+        /// so you can jump straight to the most relevant call instead of clicking
+        /// through entries one by one.
+        /// </summary>
+        private void DeepSearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            string keyword = SearchTextBox.Text.Trim();
+            if (string.IsNullOrEmpty(keyword))
+            {
+                MessageBox.Show("Please enter a search keyword.",
+                    "Deep Search Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (_harData == null)
+            {
+                MessageBox.Show("Load a HAR file first.",
+                    "Deep Search Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var entries = _harData["log"]?["entries"];
+            if (entries == null)
+            {
+                MessageBox.Show("No entries to search.",
+                    "Deep Search Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var calls = CallTable.Items.OfType<CallEntry>().ToList();
+            int matchedEntries = 0;
+            int totalMatches = 0;
+            int idx = 0;
+
+            foreach (var entry in entries)
+            {
+                int count = 0;
+                if (idx < calls.Count)
+                {
+                    // Full serialized JSON of this entry: method, url, status,
+                    // request/response headers and the response body — the lot.
+                    string fullJson = JsonConvert.SerializeObject(entry, Formatting.None);
+                    count = CountOccurrences(fullJson, keyword, StringComparison.OrdinalIgnoreCase);
+
+                    calls[idx].MatchCount = count;
+                    calls[idx].IsMatch = count > 0;
+                }
+
+                if (count > 0)
+                {
+                    matchedEntries++;
+                    totalMatches += count;
+                }
+                idx++;
+            }
+
+            MessageBox.Show(matchedEntries > 0
+                ? $"Found '{keyword}' in {matchedEntries} of {calls.Count} entries ({totalMatches} total match(es))."
+                : $"No matches for '{keyword}' across {calls.Count} entries.",
+                "Deep Search Results", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        /// <summary>
+        /// Counts non-overlapping occurrences of <paramref name="term"/> in
+        /// <paramref name="source"/> using the given comparison.
+        /// </summary>
+        private static int CountOccurrences(string source, string term, StringComparison comparison)
+        {
+            if (string.IsNullOrEmpty(source) || string.IsNullOrEmpty(term))
+                return 0;
+
+            int count = 0;
+            int index = 0;
+            while ((index = source.IndexOf(term, index, comparison)) >= 0)
+            {
+                count++;
+                index += term.Length;
+            }
+            return count;
+        }
+
         private void ClearSearchHighlights()
         {
             foreach (var item in CallTable.Items.OfType<CallEntry>())
+            {
                 item.IsMatch = false;
+                item.MatchCount = 0;
+            }
         }
 
         private void ClearSearchButton_Click(object sender, RoutedEventArgs e)

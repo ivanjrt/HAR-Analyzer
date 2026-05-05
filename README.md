@@ -10,9 +10,11 @@ A lightweight Windows desktop app for poking around inside HAR (HTTP Archive) fi
 ## ✨ Features
 
 - 📂 **Browse & load** any `.har` file — Chrome, Firefox, Edge, whatever browser you're using
+- 🖱️ **Drag & drop** — just fling a `.har` file onto the Browse button, no clicking required
 - 📋 **Table view** of all network requests at a glance — Method, URL, and HTTP Status
 - 📄 **Raw JSON viewer** — click any row to dig into the full entry (headers, response body, timings, the works)
 - 🔎 **Search the table** — type a keyword and it'll highlight matching rows across Method, URL, or Status
+- 🌐 **Deep Search** — searches the *entire content* of every entry at once (request, response, headers, bodies) and shows a per-entry match count in the **Matches** column so you can jump straight to the most relevant call
 - 🔦 **Search raw content** — find and highlight text right inside the selected entry's JSON
 - 📑 **Copy to clipboard** — one click and it's yours
 - 🌙 **Dark theme** because light mode is a crime
@@ -20,7 +22,7 @@ A lightweight Windows desktop app for poking around inside HAR (HTTP Archive) fi
 ## ⚙️ How It Works
 
 ```
- 📁 You pick a .har file
+ 📁 You pick or drop a .har file
          |
          v
  📖 File is read into memory (nothing saved anywhere)
@@ -30,24 +32,27 @@ A lightweight Windows desktop app for poking around inside HAR (HTTP Archive) fi
          |
          v
  📊 entries[] populates the DataGrid
-    (Method | URL | Status)
+    (Method | URL | Status | Matches)
          |
          v
  👆 You click a row → that entry gets serialized
     to pretty-printed JSON and shows up on the right
          |
          v
- 🔍 Search & highlight in the table
-    or inside the raw JSON — your call
+ 🔍 Search & highlight in the table,
+    deep search every entry's full content,
+    or search inside the raw JSON — your call
 ```
 
 **Under the hood:**
 
 - The HAR file is parsed with **Newtonsoft.Json** and kept in memory as a `JObject`
 - The left panel `DataGrid` binds to a `List<CallEntry>` built from `log.entries[]`
+- **Drag & drop** uses WPF's `AllowDrop` + `DragOver`/`Drop` events with an extension check so only `.har` files are accepted
 - Clicking a row serializes that entry to indented JSON and dumps it into the right-side `RichTextBox`
+- **Deep Search** serializes each entry's full JSON and counts keyword occurrences — results populate the **Matches** column and highlight matching rows
 - Raw content search rebuilds the document with `Run` elements so highlights land exactly where they should
-- Table search uses `INotifyPropertyChanged` + `DataTrigger` — so your highlights don't vanish when you scroll
+- Table and deep search highlights use `INotifyPropertyChanged` + `DataTrigger` — so your highlights don't vanish when you scroll
 
 ## 🔒 Security & Privacy
 
