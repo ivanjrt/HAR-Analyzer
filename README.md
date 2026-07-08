@@ -1,7 +1,8 @@
 # HAR Analyzer
 This Repo will to read a HAR trace and display its entries in a RAW format. <br/>
 if you have other ideas to add please let me know <br/>
-![image](https://github.com/user-attachments/assets/84816499-d6d4-4848-8593-b1787f5e16b8)<br/>
+<img width="1222" height="686" alt="image" src="https://github.com/user-attachments/assets/58a1053c-1d4f-45ae-8e16-96402afc0f12" />
+<br/>
 
 # HAR Analyzer 🔍
 
